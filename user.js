@@ -5,16 +5,37 @@
  */
 
 $(document).ready(function () {
+    //Prompt berfungsi mengambil variable nama saat pertama kali browser dijalankan
     var user_name = prompt('Please enter your name:');
+    //mengambil nilai berupa string dari textarea dengan ID #cont
     $('#cont').val('');
-
+    
+    /* 19 - 26 handler click apabila dijalankan akan mengambil nilai pada textarea
+     * dengan ID #cont berupa string. Fungsi 
+     * 
+     * $.post bertugas mengirim variable user_name & cont ke 
+     * file pemroses chat.php, file chat.php akan menerima
+     * passing variable dalam bentuk $_POST['user_name'] & $_POST['content']
+     * 
+     */
     $('#ready').click(function () {
         var cont = $('#cont').val();
         $.post('chat.php', {user_name: user_name, content: cont}, function (data) {
 
         });
-        
+
         $('#cont').val('');
+    });
+
+    $('#cont').keypress(function (e) {
+        if (e.which === 13) {
+            var cont = $('#cont').val();
+            $.post('chat.php', {user_name: user_name, content: cont}, function (data) {
+
+            });
+
+            $('#cont').val('');
+        }
     });
 
     $('#cont').focusin(function () {
@@ -22,18 +43,22 @@ $(document).ready(function () {
 
         });
     });
-    
+
     $('#cont').focusout(function () {
         $.post('delnotif.php', {user_name: user_name}, function (data) {
 
         });
     });
-    
+
 
     //send useruser_name to users.php action: joined
     $.post('users.php', {user_name: user_name, action: 'joined'});
 
     setInterval(function () {
+        
+        $.post('count.php', function (data) {
+            $('#all').html(data);
+        });
 
         $.post('is_writing.php', {user_name: user_name}, function (data) {
             $('#is').html(data);
@@ -57,7 +82,7 @@ $(document).ready(function () {
     $(window).unload(function () {
         // remove username, action: left
         $.post('users.php', {user_name: user_name, action: 'left'});
-        
+
         $.post('delnotif.php', {user_name: user_name}, function (data) {
 
         });
